@@ -1,6 +1,4 @@
-package com.adamhedges.daytrading.library.functions;
-
-import com.adamhedges.daytrading.library.bars.PriceBar;
+package com.adamhedges.financial.functions;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

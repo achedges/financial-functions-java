@@ -1,6 +1,6 @@
-package com.adamhedges.daytrading.library.functions;
+package com.adamhedges.financial.functions;
 
-import com.adamhedges.daytrading.library.bars.PriceBar;
+import com.adamhedges.financial.core.bars.PriceBar;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -14,8 +14,8 @@ public class AverageTrueRange {
     private final BigDecimal n;
 
     private BigDecimal averageTrueRange = BigDecimal.ZERO;
-    private PriceBar currentBar = null;
-    private PriceBar previousBar = null;
+    private PriceBar currentBar;
+    private PriceBar previousBar;
 
     public AverageTrueRange(List<PriceBar> prices) {
         n = BigDecimal.valueOf(prices.size());

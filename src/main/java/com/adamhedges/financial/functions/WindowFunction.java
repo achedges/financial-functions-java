@@ -1,4 +1,4 @@
-package com.adamhedges.daytrading.library.functions;
+package com.adamhedges.financial.functions;
 
 import java.math.BigDecimal;
 import java.util.List;

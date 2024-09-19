@@ -1,6 +1,6 @@
-package com.adamhedges.daytrading.library.functions;
+package com.adamhedges.financial.functions;
 
-import com.adamhedges.daytrading.library.util.Comparisons;
+import com.adamhedges.utilities.decimal.Comparisons;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

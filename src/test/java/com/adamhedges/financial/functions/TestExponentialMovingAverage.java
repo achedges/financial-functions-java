@@ -1,6 +1,6 @@
-package com.adamhedges.daytrading.library.functions;
+package com.adamhedges.financial.functions;
 
-import com.adamhedges.daytrading.library.bars.PriceBar;
+import com.adamhedges.financial.core.bars.PriceBar;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

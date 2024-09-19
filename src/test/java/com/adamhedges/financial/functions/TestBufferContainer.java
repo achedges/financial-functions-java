@@ -1,4 +1,4 @@
-package com.adamhedges.daytrading.library.functions;
+package com.adamhedges.financial.functions;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
-package com.adamhedges.daytrading.library.functions;
+package com.adamhedges.financial.functions;
 
-import com.adamhedges.daytrading.library.bars.PriceBar;
-import com.adamhedges.daytrading.library.util.Comparisons;
+import com.adamhedges.financial.core.bars.PriceBar;
+import com.adamhedges.utilities.decimal.Comparisons;
 import lombok.Getter;
 
 import java.math.BigDecimal;
