@@ -9,14 +9,22 @@ import java.util.List;
 @Getter
 public class BollingerBands extends WindowFunction {
 
+    public final int DEFAULT_DEVIATION_MULTIPLIER = 2;
     public final StandardDeviation standardDeviation;
 
+    private int deviationMultiplier = DEFAULT_DEVIATION_MULTIPLIER;
     private BigDecimal upperBand = BigDecimal.ZERO;
     private BigDecimal lowerBand = BigDecimal.ZERO;
 
     public BollingerBands(int period, List<BigDecimal> prices) {
         super(period, prices);
         standardDeviation = new StandardDeviation(period, new ArrayList<>(prices));
+    }
+
+    public BollingerBands(int period, List<BigDecimal> prices, int deviationMultiplier) {
+        super(period, prices);
+        standardDeviation = new StandardDeviation(period, new ArrayList<>(prices));
+        this.deviationMultiplier = deviationMultiplier;
     }
 
     @Override
@@ -42,9 +50,9 @@ public class BollingerBands extends WindowFunction {
     public void calculate() {
         BigDecimal mavg = standardDeviation.movingAverage.getValue();
         BigDecimal sdev = standardDeviation.getValue();
-        BigDecimal two  = BigDecimal.valueOf(2);
-        upperBand = mavg.add(sdev.multiply(two));
-        lowerBand = mavg.subtract(sdev.multiply(two));
+        BigDecimal ndev  = BigDecimal.valueOf(deviationMultiplier);
+        upperBand = mavg.add(sdev.multiply(ndev));
+        lowerBand = mavg.subtract(sdev.multiply(ndev));
     }
 
     @Override
