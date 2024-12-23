@@ -18,12 +18,14 @@ public class TestBollingerBands {
         BigDecimal ndev  = BigDecimal.valueOf(deviationMultiplier);
         BigDecimal upperBand = mavg.add(sdev.multiply(ndev));
         BigDecimal lowerBand = mavg.subtract(sdev.multiply(ndev));
+        BigDecimal bandWidth = func.getBandWidthPriceRatio();
 
         double assertThreshold = 0.0001;
         Assertions.assertEquals(Context.sma[testIndex], mavg.doubleValue(), assertThreshold);
         Assertions.assertEquals(Context.dev[testIndex], sdev.doubleValue(), assertThreshold);
         Assertions.assertEquals(upperBand.doubleValue(), func.getUpperBand().doubleValue(), assertThreshold);
         Assertions.assertEquals(lowerBand.doubleValue(), func.getLowerBand().doubleValue(), assertThreshold);
+        Assertions.assertEquals((upperBand.doubleValue() - lowerBand.doubleValue()) / Context.data[newIndex], bandWidth.doubleValue(), assertThreshold);
     }
 
     @Test

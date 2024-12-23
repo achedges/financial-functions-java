@@ -1,8 +1,10 @@
 package com.adamhedges.financial.functions;
 
+import com.adamhedges.utilities.decimal.Comparisons;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +60,15 @@ public class BollingerBands extends WindowFunction {
     @Override
     public BigDecimal getValue() {
         return standardDeviation.getValue();
+    }
+
+    public BigDecimal getBandWidthPriceRatio() {
+        BigDecimal last = getLastValue();
+        BigDecimal width = upperBand.subtract(lowerBand);
+
+        return Comparisons.gt(last, BigDecimal.ZERO)
+            ? width.divide(last, RoundingMode.HALF_UP)
+            : BigDecimal.ZERO;
     }
 
 }
