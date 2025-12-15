@@ -49,4 +49,9 @@ public class ExponentialMovingAverage extends WindowFunction {
         return ema;
     }
 
+    @Override
+    public double getDouble() {
+        return ema.doubleValue();
+    }
+
 }

@@ -48,4 +48,9 @@ public class SimpleMovingAverage extends WindowFunction {
         return average;
     }
 
+    @Override
+    public double getDouble() {
+        return average.doubleValue();
+    }
+
 }

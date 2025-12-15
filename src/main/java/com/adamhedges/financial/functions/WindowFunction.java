@@ -45,5 +45,6 @@ public abstract class WindowFunction {
     public abstract void slide(BigDecimal newValue);
     public abstract void calculate();
     public abstract BigDecimal getValue();
+    public abstract double getDouble();
 
 }

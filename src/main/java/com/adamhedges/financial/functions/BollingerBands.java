@@ -62,6 +62,11 @@ public class BollingerBands extends WindowFunction {
         return standardDeviation.getValue();
     }
 
+    @Override
+    public double getDouble() {
+        return standardDeviation.getValue().doubleValue();
+    }
+
     public BigDecimal getBandWidthPriceRatio() {
         BigDecimal last = getLastValue();
         BigDecimal width = upperBand.subtract(lowerBand);

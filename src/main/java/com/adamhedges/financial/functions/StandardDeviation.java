@@ -59,4 +59,9 @@ public class StandardDeviation extends WindowFunction {
         return deviation;
     }
 
+    @Override
+    public double getDouble() {
+        return deviation.doubleValue();
+    }
+
 }

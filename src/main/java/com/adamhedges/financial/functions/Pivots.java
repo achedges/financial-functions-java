@@ -65,9 +65,17 @@ public class Pivots {
                 continue;
             }
 
-            if (consolidated.get(i+1) - consolidated.get(i) <= span) {
-                if (dispersions.get(i) > dispersions.get(i+1)) {
-                    consolidated.set(i+1, -1);
+            for (int j = i + 1; j < consolidated.size(); j++) {
+                if (pivotIndexes.get(j) - pivotIndexes.get(i) > span) {
+                    break;
+                }
+
+                if (consolidated.get(j) == -1) {
+                    continue;
+                }
+
+                if (dispersions.get(i) > dispersions.get(j)) {
+                    consolidated.set(j, -1);
                 } else {
                     consolidated.set(i, -1);
                 }

@@ -51,4 +51,9 @@ public class Trend extends WindowFunction {
         return trend;
     }
 
+    @Override
+    public double getDouble() {
+        return trend.doubleValue();
+    }
+
 }
