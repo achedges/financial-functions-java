@@ -6,8 +6,8 @@ import java.util.function.BiFunction;
 
 public class Pivots {
 
-    private static final int DEFAULT_DISPERSION_GROUPS = 4;
-    private static final int DEFAULT_CONSOLIDATION_GROUPS = 4;
+    public static final int DEFAULT_DISPERSION_GROUPS = 4;
+    public static final int DEFAULT_CONSOLIDATION_GROUPS = 4;
 
     public static <T> List<Integer> getPivots(List<T> values, BiFunction<T, T, Boolean> comparison) {
 
