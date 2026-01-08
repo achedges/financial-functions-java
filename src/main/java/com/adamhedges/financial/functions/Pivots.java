@@ -6,7 +6,13 @@ import java.util.function.BiFunction;
 
 public class Pivots {
 
+    private static final int DEFAULT_DISPERSION_GROUPS = 4;
+    private static final int DEFAULT_CONSOLIDATION_GROUPS = 4;
+
     public static <T> List<Integer> getPivots(List<T> values, BiFunction<T, T, Boolean> comparison) {
+
+        // Find all elements where the provided comparison bi-function is true for all non-null neighbors, and return their indices
+
         int nbars = values.size();
         List<Integer> pivots = new ArrayList<>();
 
@@ -29,9 +35,14 @@ public class Pivots {
         }
 
         return pivots;
+
     }
 
     public static <T> List<Double> getDispersions(List<T> values, List<Integer> pivotIndexes, int span, BiFunction<T, T, Double> diff) {
+
+        // Given a list of values, and a corresponding list of pivots (from getPivots()), find the dispersion of each pivot point
+        // by calculating the maximum difference between that pivot point and the neighboring elements, up to some maximum span.
+
         int nbars = values.size();
         List<Double> dispersions = new ArrayList<>(pivotIndexes.size());
 
@@ -52,9 +63,15 @@ public class Pivots {
         }
 
         return dispersions;
+
     }
 
     public static List<Integer> consolidatePivots(List<Integer> pivotIndexes, List<Double> dispersions, int span) {
+
+        // Given a list of pivot indices (from getPivots()) and dispersions (from getDispersions()), produce a consolidated
+        // list of pivot indices by collapsing neighboring pivot points into the pivot point with the highest dispersion,
+        // up to some maximum span.
+
         if (pivotIndexes.size() != dispersions.size()) {
             throw new RuntimeException("'pivotIndexes' and 'dispersions' arguments are not the same size");
         }
@@ -83,6 +100,17 @@ public class Pivots {
         }
 
         return consolidated.stream().filter(c -> c >= 0).toList();
+
+    }
+
+    public static <T> List<Integer> get(
+        List<T> values,
+        BiFunction<T, T, Boolean> comparison,
+        BiFunction<T, T, Double> dispersion
+    ) {
+        int dispersionSpan = values.size() / DEFAULT_DISPERSION_GROUPS;
+        int consolidationSpan = values.size() / DEFAULT_CONSOLIDATION_GROUPS;
+        return Pivots.get(values, comparison, dispersion, dispersionSpan, consolidationSpan);
     }
 
     public static <T> List<Integer> get(

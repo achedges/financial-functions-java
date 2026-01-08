@@ -83,8 +83,10 @@ public class TestPivots {
 
         List<Integer> consolidatedHighs = Pivots.get(values, (l, r) -> l > r, (l, r) -> l - r, 2, 3);
         List<Integer> expectedHighs = List.of(1, 7, 12);
+        Assertions.assertEquals(expectedHighs, consolidatedHighs);
 
-        Assertions.assertEquals(expectedHighs.size(), consolidatedHighs.size());
+        // test default behavior
+        consolidatedHighs = Pivots.get(values, (l, r) -> l > r, (l, r) -> l - r);
         Assertions.assertEquals(expectedHighs, consolidatedHighs);
     }
 
