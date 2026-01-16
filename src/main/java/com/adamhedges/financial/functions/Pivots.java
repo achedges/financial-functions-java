@@ -51,8 +51,8 @@ public class Pivots {
             T peakBar = values.get(pivotIndex);
 
             for (int i = 1; i <= span; i++) {
-                double leftspan = pivotIndex - i < 0 ? 0.0 : diff.apply(peakBar, values.get(pivotIndex-i));
-                double rightspan = pivotIndex + i >= nbars ? 0.0 : diff.apply(peakBar, values.get(pivotIndex+i));
+                double leftspan = pivotIndex - i < 0 ? 0.0 : diff.apply(peakBar, values.get(pivotIndex - i));
+                double rightspan = pivotIndex + i >= nbars ? 0.0 : diff.apply(peakBar, values.get(pivotIndex + i));
                 double maxspan = Math.max(leftspan, rightspan);
                 if (maxspan > dispersion) {
                     dispersion = maxspan;
