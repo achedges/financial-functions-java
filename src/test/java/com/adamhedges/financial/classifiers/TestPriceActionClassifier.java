@@ -28,7 +28,7 @@ public class TestPriceActionClassifier {
         buffer.add(getBar(10, 11, 9, 11)); // up bar but not hammer
         Assertions.assertFalse(classifier.isHammer());
 
-        buffer.add(getBar(10.5, 11.06, 6.5, 11)); // hammer
+        buffer.add(getBar(10, 11.06, 6.5, 11)); // hammer
         Assertions.assertTrue(classifier.isHammer());
     }
 

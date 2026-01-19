@@ -28,10 +28,10 @@ public class PriceActionClassifier {
         }
 
         double lowWickMultiple = bar.getLowWick() / bar.getBody(); // look for > 3.0
-        double highWickMultiple = bar.getHighWick() / bar.getRange(); // look for < 0.1
+        double highWickMultiple = bar.getHighWick() / bar.getRange(); // look for < 0.05
         double bodyMultiple = bar.getBody() / bar.getRange(); // look for 0.1 < m < 0.2
 
-        return lowWickMultiple > 3.0 && highWickMultiple < 0.1 && ComparisonUtils.between(bodyMultiple, 0.1, 0.2);
+        return lowWickMultiple > 3.0 && highWickMultiple < 0.05 && ComparisonUtils.between(bodyMultiple, 0.1, 0.25);
     }
 
     public boolean isBullishEngulfing() {
