@@ -20,16 +20,42 @@ public class TestPriceActionClassifier {
     public void TestPriceActionClassifier_isHammer() {
         RandomAccessBuffer<PriceBar> buffer = new RandomAccessBuffer<>(1);
         PriceActionClassifier classifier = new PriceActionClassifier(buffer);
+
+        // empty state
         Assertions.assertFalse(classifier.isHammer());
 
-        buffer.add(getBar(10, 10, 9, 9)); // down bar
+        // down bar
+        buffer.add(getBar(10, 10, 9, 9));
         Assertions.assertFalse(classifier.isHammer());
 
-        buffer.add(getBar(10, 11, 9, 11)); // up bar but not hammer
+        // up bar, but not hammer
+        buffer.add(getBar(10, 11, 9, 11));
         Assertions.assertFalse(classifier.isHammer());
 
-        buffer.add(getBar(10, 11.06, 6.5, 11)); // hammer
+        // hammer
+        buffer.add(getBar(10, 11.06, 6.5, 11));
         Assertions.assertTrue(classifier.isHammer());
+    }
+
+    @Test
+    public void TestPriceActionClassifier_isBullishEngulfing() {
+        RandomAccessBuffer<PriceBar> buffer = new RandomAccessBuffer<>(2);
+        PriceActionClassifier classifier = new PriceActionClassifier(buffer);
+
+        // empty state
+        Assertions.assertFalse(classifier.isBullishEngulfing());
+
+        // single bar
+        buffer.add(getBar(10, 10, 9, 9));
+        Assertions.assertFalse(classifier.isBullishEngulfing());
+
+        // second bar, also down
+        buffer.add(getBar(10.5, 10.5, 9.5, 9.5));
+        Assertions.assertFalse(classifier.isBullishEngulfing());
+
+        // third bar, up engulfing
+        buffer.add(getBar(9.5, 11, 9.5, 11));
+        Assertions.assertTrue(classifier.isBullishEngulfing());
     }
 
 }

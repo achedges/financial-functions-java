@@ -35,7 +35,23 @@ public class PriceActionClassifier {
     }
 
     public boolean isBullishEngulfing() {
-        return false;
+        Optional<PriceBar> firstBar = buffer.getLast(1);
+        Optional<PriceBar> secondBar = buffer.getLast();
+
+        // need both bars
+        if (firstBar.isEmpty() || secondBar.isEmpty()) {
+            return false;
+        }
+
+        // 1st bar should be down, second should be up
+        if (firstBar.get().isUp() || secondBar.get().isDown()) {
+            return false;
+        }
+
+        boolean closesAboveOpen = secondBar.get().getClose() >= firstBar.get().getOpen();
+        boolean opensBelowClose = secondBar.get().getOpen() <= firstBar.get().getClose();
+
+        return closesAboveOpen && opensBelowClose;
     }
 
     public boolean isPiercing() {
