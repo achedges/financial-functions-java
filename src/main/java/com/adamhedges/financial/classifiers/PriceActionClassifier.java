@@ -48,42 +48,206 @@ public class PriceActionClassifier {
             return false;
         }
 
-        boolean closesAboveOpen = secondBar.get().getClose() >= firstBar.get().getOpen();
+        boolean closesAboveHigh = secondBar.get().getClose() >= firstBar.get().getHigh();
         boolean opensBelowClose = secondBar.get().getOpen() <= firstBar.get().getClose();
 
-        return closesAboveOpen && opensBelowClose;
+        return closesAboveHigh && opensBelowClose;
     }
 
     public boolean isPiercing() {
-        return false;
+        Optional<PriceBar> firstBar = buffer.getLast(1);
+        Optional<PriceBar> secondBar = buffer.getLast();
+
+        // need both bars
+        if (firstBar.isEmpty() || secondBar.isEmpty()) {
+            return false;
+        }
+
+        // 1st bar should be down, second bar should be up
+        if (firstBar.get().isUp() || secondBar.get().isDown()) {
+            return false;
+        }
+
+        PriceBar b1 = firstBar.get();
+        PriceBar b2 = secondBar.get();
+
+        double b1_mid = (b1.getOpen() + b1.getClose()) / 2;
+        boolean closesAboveMidpoint = ComparisonUtils.between(b2.getClose(), b1_mid, b1.getOpen());
+        boolean opensBelowClose = b2.getOpen() <= b1.getClose();
+
+        return closesAboveMidpoint && opensBelowClose;
     }
 
     public boolean isTweezerBottom() {
-        return false;
+        Optional<PriceBar> firstBar = buffer.getLast(1);
+        Optional<PriceBar> secondBar = buffer.getLast();
+
+        // need both bars
+        if (firstBar.isEmpty() || secondBar.isEmpty()) {
+            return false;
+        }
+
+        // 1st bar should be down, second bar should be up
+        if (firstBar.get().isUp() || secondBar.get().isDown()) {
+            return false;
+        }
+
+        PriceBar b1 = firstBar.get();
+        PriceBar b2 = secondBar.get();
+
+        // body is at least 20% of range
+        // low wick is at least 1x of body
+        double b1_range_mult = b1.getRange() / b1.getBody();
+        double b2_range_mult = b2.getRange() / b2.getBody();
+        double b1_low_mult = b1.getLowWick() / b1.getBody();
+        double b2_low_mult = b2.getLowWick() / b2.getBody();
+
+        return b1_range_mult >= 0.2 && b2_range_mult >= 0.2 && b1_low_mult >= 1.0 && b2_low_mult >= 1.0;
     }
 
     public boolean isMorningStar() {
-        return false;
+        Optional<PriceBar> firstBar = buffer.getLast(2);
+        Optional<PriceBar> secondBar = buffer.getLast(1);
+        Optional<PriceBar> thirdBar = buffer.getLast();
+
+        // need three bars
+        if (firstBar.isEmpty() || secondBar.isEmpty() || thirdBar.isEmpty()) {
+            return false;
+        }
+
+        // 1st bar should be down, third bar should be up
+        if (firstBar.get().isUp() || thirdBar.get().isDown()) {
+            return false;
+        }
+
+        PriceBar b1 = firstBar.get();
+        PriceBar b2 = secondBar.get();
+        PriceBar b3 = thirdBar.get();
+
+        // b2 range is < 0.1 of b1 range
+        // b3 engulfs b1
+        double b2_range_mult = b2.getRange() / b1.getRange();
+        boolean closesAboveOpen = b3.getClose() >= b1.getOpen();
+        boolean opensBelowClose = b3.getOpen() <= b1.getClose();
+
+        return b2_range_mult <= 0.1 && closesAboveOpen && opensBelowClose;
     }
 
     public boolean isShootingStar() {
-        return false;
+        Optional<PriceBar> optionalBar = buffer.getLast();
+        if (optionalBar.isEmpty()) {
+            return false;
+        }
+
+        PriceBar bar = optionalBar.get();
+        if (bar.isUp()) {
+            return false;
+        }
+
+        double high_wick_mult = bar.getHighWick() / bar.getBody(); // look for > 3.0
+        double low_wick_mult = bar.getLowWick() / bar.getRange(); // look for < 0.05
+        double body_mult = bar.getBody() / bar.getRange(); // look for 0.1 < m < 0.2
+
+        return high_wick_mult > 3.0 && low_wick_mult < 0.05 && ComparisonUtils.between(body_mult, 0.1, 0.25);
     }
 
     public boolean isBearishEngulfing() {
-        return false;
+        Optional<PriceBar> firstBar = buffer.getLast(1);
+        Optional<PriceBar> secondBar = buffer.getLast();
+
+        // need both bars
+        if (firstBar.isEmpty() || secondBar.isEmpty()) {
+            return false;
+        }
+
+        // 1st bar should be up, second bar should be down
+        if (firstBar.get().isDown() || secondBar.get().isUp()) {
+            return false;
+        }
+
+        boolean closesBelowLow = secondBar.get().getClose() <= firstBar.get().getLow();
+        boolean opensAboveClose = secondBar.get().getOpen() >= firstBar.get().getClose();
+
+        return closesBelowLow && opensAboveClose;
     }
 
     public boolean isDarkCloudCover() {
-        return false;
+        Optional<PriceBar> firstBar = buffer.getLast(1);
+        Optional<PriceBar> secondBar = buffer.getLast();
+
+        // need both bars
+        if (firstBar.isEmpty() || secondBar.isEmpty()) {
+            return false;
+        }
+
+        // 1st bar should be up, second bar should be down
+        if (firstBar.get().isDown() || secondBar.get().isUp()) {
+            return false;
+        }
+
+        PriceBar b1 = firstBar.get();
+        PriceBar b2 = secondBar.get();
+
+        double b1_mid = (b1.getClose() + b1.getOpen()) / 2;
+        boolean closesBelowMidpoint = ComparisonUtils.between(b2.getClose(), b1.getOpen(), b1_mid);
+        boolean opensAboveClose = b2.getOpen() >= b1.getClose();
+
+        return closesBelowMidpoint && opensAboveClose;
     }
 
     public boolean isTweezerTop() {
-        return false;
+        Optional<PriceBar> firstBar = buffer.getLast(1);
+        Optional<PriceBar> secondBar = buffer.getLast();
+
+        // need both bars
+        if (firstBar.isEmpty() || secondBar.isEmpty()) {
+            return false;
+        }
+
+        // 1st bar should be up, second bar should be down
+        if (firstBar.get().isDown() || secondBar.get().isUp()) {
+            return false;
+        }
+
+        PriceBar b1 = firstBar.get();
+        PriceBar b2 = secondBar.get();
+
+        // body is at least 20% of range
+        // low wick is at least 1x of body
+        double b1_range_mult = b1.getRange() / b1.getBody();
+        double b2_range_mult = b2.getRange() / b2.getBody();
+        double b1_high_mult = b1.getHighWick() / b1.getBody();
+        double b2_high_mult = b2.getHighWick() / b2.getBody();
+
+        return b1_range_mult >= 0.2 && b2_range_mult >= 0.2 && b1_high_mult >= 1.0 && b2_high_mult >= 1.0;
     }
 
     public boolean isEveningStar() {
-        return false;
+        Optional<PriceBar> firstBar = buffer.getLast(2);
+        Optional<PriceBar> secondBar = buffer.getLast(1);
+        Optional<PriceBar> thirdBar = buffer.getLast();
+
+        // need three bars
+        if (firstBar.isEmpty() || secondBar.isEmpty() || thirdBar.isEmpty()) {
+            return false;
+        }
+
+        // 1st bar should be up, third bar should be down
+        if (firstBar.get().isDown() || thirdBar.get().isUp()) {
+            return false;
+        }
+
+        PriceBar b1 = firstBar.get();
+        PriceBar b2 = secondBar.get();
+        PriceBar b3 = thirdBar.get();
+
+        // b2 range is < 0.1 of b1 range
+        // b3 engulfs b1
+        double b2_range_mult = b2.getRange() / b1.getRange();
+        boolean opensAboveClose = b3.getOpen() >= b1.getClose();
+        boolean closesBelowOpen = b3.getClose() <= b1.getOpen();
+
+        return b2_range_mult <= 0.1 && closesBelowOpen && opensAboveClose;
     }
 
     public Set<PriceAction> classifyPriceAction() {
