@@ -23,7 +23,7 @@ public class PriceActionClassifier {
         }
 
         PriceBar bar = optionalBar.get();
-        if (bar.isDown()) {
+        if (!bar.isUp()) {
             return false;
         }
 
@@ -44,7 +44,7 @@ public class PriceActionClassifier {
         }
 
         // 1st bar should be down, second should be up
-        if (firstBar.get().isUp() || secondBar.get().isDown()) {
+        if (!firstBar.get().isDown() || !secondBar.get().isUp()) {
             return false;
         }
 
@@ -64,7 +64,7 @@ public class PriceActionClassifier {
         }
 
         // 1st bar should be down, second bar should be up
-        if (firstBar.get().isUp() || secondBar.get().isDown()) {
+        if (!firstBar.get().isDown() || !secondBar.get().isUp()) {
             return false;
         }
 
@@ -88,7 +88,7 @@ public class PriceActionClassifier {
         }
 
         // 1st bar should be down, second bar should be up
-        if (firstBar.get().isUp() || secondBar.get().isDown()) {
+        if (!firstBar.get().isDown() || !secondBar.get().isUp()) {
             return false;
         }
 
@@ -116,7 +116,7 @@ public class PriceActionClassifier {
         }
 
         // 1st bar should be down, third bar should be up
-        if (firstBar.get().isUp() || thirdBar.get().isDown()) {
+        if (!firstBar.get().isDown() || !thirdBar.get().isUp()) {
             return false;
         }
 
@@ -140,7 +140,7 @@ public class PriceActionClassifier {
         }
 
         PriceBar bar = optionalBar.get();
-        if (bar.isUp()) {
+        if (!bar.isDown()) {
             return false;
         }
 
@@ -161,7 +161,7 @@ public class PriceActionClassifier {
         }
 
         // 1st bar should be up, second bar should be down
-        if (firstBar.get().isDown() || secondBar.get().isUp()) {
+        if (!firstBar.get().isUp() || !secondBar.get().isDown()) {
             return false;
         }
 
@@ -181,7 +181,7 @@ public class PriceActionClassifier {
         }
 
         // 1st bar should be up, second bar should be down
-        if (firstBar.get().isDown() || secondBar.get().isUp()) {
+        if (!firstBar.get().isUp() || !secondBar.get().isDown()) {
             return false;
         }
 
@@ -205,7 +205,7 @@ public class PriceActionClassifier {
         }
 
         // 1st bar should be up, second bar should be down
-        if (firstBar.get().isDown() || secondBar.get().isUp()) {
+        if (!firstBar.get().isUp() || !secondBar.get().isDown()) {
             return false;
         }
 
@@ -233,7 +233,7 @@ public class PriceActionClassifier {
         }
 
         // 1st bar should be up, third bar should be down
-        if (firstBar.get().isDown() || thirdBar.get().isUp()) {
+        if (!firstBar.get().isUp() || !thirdBar.get().isDown()) {
             return false;
         }
 
