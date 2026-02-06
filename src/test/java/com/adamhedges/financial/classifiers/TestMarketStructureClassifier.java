@@ -44,7 +44,7 @@ public class TestMarketStructureClassifier {
         bars.get(18).setLow(18.0);
         classifier.classifyMarketStructure(bars);
 
-        Assertions.assertEquals(20.71, classifier.getLastHighPivot().orElse(new PriceBar("")).getHigh(), 0.01);
+        Assertions.assertEquals(22.0, classifier.getLastHighPivot().orElse(new PriceBar("")).getHigh(), 0.01);
         Assertions.assertEquals(18.0, classifier.getLastLowPivot().orElse(new PriceBar("")).getLow());
     }
 

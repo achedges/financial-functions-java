@@ -27,8 +27,8 @@ public class MarketStructureClassifier {
 
     public TrendClassification classifyMarketStructure(List<PriceBar> bars) {
         this.bars = bars;
-        this.highPivots = Pivots.get(bars, (a, b) -> a.getHigh() >= b.getHigh(), (a, b) -> a.getHigh() - b.getLow());
-        this.lowPivots = Pivots.get(bars, (a, b) -> a.getLow() <= b.getLow(), (a, b) -> b.getHigh() - a.getLow());
+        this.highPivots = Pivots.get(bars, (a, b) -> a.getHigh() >= b.getHigh(), (a, b) -> a.getHigh() - b.getHigh());
+        this.lowPivots = Pivots.get(bars, (a, b) -> a.getLow() <= b.getLow(), (a, b) -> b.getLow() - a.getLow());
 
         if (highPivots.size() <= 1 || lowPivots.size() <= 1) {
             return TrendClassification.Flat;

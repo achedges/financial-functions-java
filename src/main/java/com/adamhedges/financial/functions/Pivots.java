@@ -78,10 +78,6 @@ public class Pivots {
 
         List<Integer> consolidated = new ArrayList<>(pivotIndexes);
         for (int i = 0; i < consolidated.size() - 1; i++) {
-            if (consolidated.get(i) == -1) {
-                continue;
-            }
-
             for (int j = i + 1; j < consolidated.size(); j++) {
                 if (pivotIndexes.get(j) - pivotIndexes.get(i) > span) {
                     break;
@@ -95,6 +91,7 @@ public class Pivots {
                     consolidated.set(j, -1);
                 } else {
                     consolidated.set(i, -1);
+                    break;
                 }
             }
         }
