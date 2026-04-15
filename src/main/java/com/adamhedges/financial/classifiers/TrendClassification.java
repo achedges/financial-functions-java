@@ -5,5 +5,5 @@ public enum TrendClassification {
     WeakUp,
     StrongDown,
     WeakDown,
-    Flat
+    Mixed
 }

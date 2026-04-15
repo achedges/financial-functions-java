@@ -55,7 +55,7 @@ public class TestMarketStructureClassifier {
 
         // base case, not enough pivots identified
         TrendClassification trend = classifier.classifyMarketStructure(bars);
-        Assertions.assertEquals(TrendClassification.Flat, trend);
+        Assertions.assertEquals(TrendClassification.Mixed, trend);
 
         // generate a perfectly flat structure
         bars.get(4).setHigh(22.0);
@@ -63,7 +63,7 @@ public class TestMarketStructureClassifier {
         bars.get(8).setLow(18.0);
         bars.get(18).setLow(18.0);
         trend = classifier.classifyMarketStructure(bars);
-        Assertions.assertEquals(TrendClassification.Flat, trend);
+        Assertions.assertEquals(TrendClassification.Mixed, trend);
 
         // generate an ambiguous structure
         bars.get(4).setHigh(24.0);
@@ -71,7 +71,7 @@ public class TestMarketStructureClassifier {
         bars.get(8).setLow(16.0);
         bars.get(18).setLow(18.0);
         trend = classifier.classifyMarketStructure(bars);
-        Assertions.assertEquals(TrendClassification.Flat, trend);
+        Assertions.assertEquals(TrendClassification.Mixed, trend);
     }
 
     @Test

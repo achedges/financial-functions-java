@@ -31,7 +31,7 @@ public class MarketStructureClassifier {
         this.lowPivots = Pivots.get(bars, (a, b) -> a.getLow() <= b.getLow(), (a, b) -> b.getLow() - a.getLow());
 
         if (highPivots.size() <= 1 || lowPivots.size() <= 1) {
-            return TrendClassification.Flat;
+            return TrendClassification.Mixed;
         }
 
         double diff_h = bars.get(highPivots.getLast()).getHigh() - bars.get(highPivots.getFirst()).getHigh();
@@ -46,7 +46,7 @@ public class MarketStructureClassifier {
         } else if (diff_h < 0.0 && diff_l < 0.0) {
             this.trendClassification = TrendClassification.WeakDown;
         } else {
-            this.trendClassification = TrendClassification.Flat;
+            this.trendClassification = TrendClassification.Mixed;
         }
 
         return this.trendClassification;
