@@ -87,9 +87,9 @@ public class Pivots {
                     continue;
                 }
 
-                if (dispersions.get(i) > dispersions.get(j)) {
+                if (dispersions.get(i) > dispersions.get(j) && consolidated.get(i) != -1) {
                     consolidated.set(j, -1);
-                } else {
+                } else if (consolidated.get(j) != -1) {
                     consolidated.set(i, -1);
                     break;
                 }

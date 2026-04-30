@@ -73,4 +73,20 @@ public class MarketStructureClassifier {
         return getLastPivot(lowPivots);
     }
 
+    public Optional<Integer> getLastHighPivotIndex() {
+        if (highPivots == null || highPivots.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(highPivots.getLast());
+    }
+
+    public Optional<Integer> getLastLowPivotIndex() {
+        if (lowPivots == null || lowPivots.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(lowPivots.getLast());
+    }
+
 }

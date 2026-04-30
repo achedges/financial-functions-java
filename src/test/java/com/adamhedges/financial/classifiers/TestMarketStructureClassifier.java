@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 public class TestMarketStructureClassifier {
@@ -30,7 +31,7 @@ public class TestMarketStructureClassifier {
     }
 
     @Test
-    public void TestMarketStructureClassifier_getLastHighPivot() {
+    public void TestMarketStructureClassifier_getLastHighLowPivot() {
         MarketStructureClassifier classifier = new MarketStructureClassifier();
 
         Assertions.assertTrue(classifier.getLastHighPivot().isEmpty());
@@ -46,6 +47,25 @@ public class TestMarketStructureClassifier {
 
         Assertions.assertEquals(22.0, classifier.getLastHighPivot().orElse(new PriceBar("")).getHigh(), 0.01);
         Assertions.assertEquals(18.0, classifier.getLastLowPivot().orElse(new PriceBar("")).getLow());
+    }
+
+    @Test
+    public void TestMarketStructureClassifier_getLastHighLowPivotIndex() {
+        MarketStructureClassifier classifier = new MarketStructureClassifier();
+
+        Assertions.assertTrue(classifier.getLastHighPivotIndex().isEmpty());
+        Assertions.assertTrue(classifier.getLastLowPivotIndex().isEmpty());
+
+        List<PriceBar> bars = getBars();
+        // generate an ambiguous structure
+        bars.get(4).setHigh(24.0);
+        bars.get(14).setHigh(22.0);
+        bars.get(8).setLow(16.0);
+        bars.get(18).setLow(18.0);
+        classifier.classifyMarketStructure(bars);
+
+        Assertions.assertEquals(Optional.of(14), classifier.getLastHighPivotIndex());
+        Assertions.assertEquals(Optional.of(18), classifier.getLastLowPivotIndex());
     }
 
     @Test
