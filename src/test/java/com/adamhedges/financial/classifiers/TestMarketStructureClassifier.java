@@ -84,6 +84,8 @@ public class TestMarketStructureClassifier {
         bars.get(18).setLow(18.0);
         trend = classifier.classifyMarketStructure(bars);
         Assertions.assertEquals(TrendClassification.Mixed, trend);
+        Assertions.assertEquals(0.0, classifier.getHighPivotDiff());
+        Assertions.assertEquals(0.0, classifier.getLowPivotDiff());
 
         // generate an ambiguous structure
         bars.get(4).setHigh(24.0);
@@ -92,6 +94,8 @@ public class TestMarketStructureClassifier {
         bars.get(18).setLow(18.0);
         trend = classifier.classifyMarketStructure(bars);
         Assertions.assertEquals(TrendClassification.Mixed, trend);
+        Assertions.assertEquals(-2.0, classifier.getHighPivotDiff());
+        Assertions.assertEquals(2.0, classifier.getLowPivotDiff());
     }
 
     @Test
@@ -104,6 +108,8 @@ public class TestMarketStructureClassifier {
         bars.get(18).setLow(18.95); // just under 1.0
         TrendClassification trend = classifier.classifyMarketStructure(bars);
         Assertions.assertEquals(TrendClassification.WeakUp, trend);
+        Assertions.assertEquals(0.95, classifier.getHighPivotDiff(), 0.001);
+        Assertions.assertEquals(0.95, classifier.getLowPivotDiff(), 0.001);
     }
 
     @Test
@@ -116,6 +122,8 @@ public class TestMarketStructureClassifier {
         bars.get(18).setLow(17.05); // just under 1.0
         TrendClassification trend = classifier.classifyMarketStructure(bars);
         Assertions.assertEquals(TrendClassification.WeakDown, trend);
+        Assertions.assertEquals(-0.95, classifier.getHighPivotDiff(), 0.001);
+        Assertions.assertEquals(-0.95, classifier.getLowPivotDiff(), 0.001);
     }
 
     @Test
@@ -128,6 +136,8 @@ public class TestMarketStructureClassifier {
         bars.get(18).setLow(19.05); // just under 1.0
         TrendClassification trend = classifier.classifyMarketStructure(bars);
         Assertions.assertEquals(TrendClassification.StrongUp, trend);
+        Assertions.assertEquals(1.05, classifier.getHighPivotDiff(), 0.001);
+        Assertions.assertEquals(1.05, classifier.getLowPivotDiff(), 0.001);
     }
 
     @Test
@@ -140,6 +150,8 @@ public class TestMarketStructureClassifier {
         bars.get(18).setLow(16.95); // just under 1.0
         TrendClassification trend = classifier.classifyMarketStructure(bars);
         Assertions.assertEquals(TrendClassification.StrongDown, trend);
+        Assertions.assertEquals(-1.05, classifier.getHighPivotDiff(), 0.001);
+        Assertions.assertEquals(-1.05, classifier.getLowPivotDiff(), 0.001);
     }
 
 }

@@ -15,6 +15,12 @@ public class MarketStructureClassifier {
     private List<Integer> lowPivots = null;
     private TrendClassification trendClassification;
 
+    @Getter
+    private double highPivotDiff = 0;
+
+    @Getter
+    private double lowPivotDiff = 0;
+
     private final double strongTrendThreshold;
 
     public MarketStructureClassifier() {
@@ -27,6 +33,8 @@ public class MarketStructureClassifier {
 
     public TrendClassification classifyMarketStructure(List<PriceBar> bars) {
         this.bars = bars;
+        this.highPivotDiff = 0;
+        this.lowPivotDiff = 0;
         this.highPivots = Pivots.get(bars, (a, b) -> a.getHigh() >= b.getHigh(), (a, b) -> a.getHigh() - b.getHigh());
         this.lowPivots = Pivots.get(bars, (a, b) -> a.getLow() <= b.getLow(), (a, b) -> b.getLow() - a.getLow());
 
@@ -34,16 +42,16 @@ public class MarketStructureClassifier {
             return TrendClassification.Mixed;
         }
 
-        double diff_h = bars.get(highPivots.getLast()).getHigh() - bars.get(highPivots.getFirst()).getHigh();
-        double diff_l = bars.get(lowPivots.getLast()).getLow() - bars.get(lowPivots.getFirst()).getLow();
+        highPivotDiff = bars.get(highPivots.getLast()).getHigh() - bars.get(highPivots.getFirst()).getHigh();
+        lowPivotDiff = bars.get(lowPivots.getLast()).getLow() - bars.get(lowPivots.getFirst()).getLow();
 
-        if (diff_h >= strongTrendThreshold && diff_l >= strongTrendThreshold) {
+        if (highPivotDiff >= strongTrendThreshold && lowPivotDiff >= strongTrendThreshold) {
             this.trendClassification = TrendClassification.StrongUp;
-        } else if (diff_h > 0.0 && diff_l > 0.0) {
+        } else if (highPivotDiff > 0.0 && lowPivotDiff > 0.0) {
             this.trendClassification = TrendClassification.WeakUp;
-        } else if (diff_h <= -strongTrendThreshold && diff_l <= -strongTrendThreshold) {
+        } else if (highPivotDiff <= -strongTrendThreshold && lowPivotDiff <= -strongTrendThreshold) {
             this.trendClassification = TrendClassification.StrongDown;
-        } else if (diff_h < 0.0 && diff_l < 0.0) {
+        } else if (highPivotDiff < 0.0 && lowPivotDiff < 0.0) {
             this.trendClassification = TrendClassification.WeakDown;
         } else {
             this.trendClassification = TrendClassification.Mixed;
