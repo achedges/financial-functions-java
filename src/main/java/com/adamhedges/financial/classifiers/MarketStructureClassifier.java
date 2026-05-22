@@ -19,12 +19,18 @@ public class MarketStructureClassifier {
     private double highPivotDiff = 0;
 
     @Getter
+    private double highPivotSlope = 0;
+
+    @Getter
     private double lowPivotDiff = 0;
+
+    @Getter
+    private double lowPivotSlope = 0;
 
     private final double strongTrendThreshold;
 
     public MarketStructureClassifier() {
-        strongTrendThreshold = 0.0005;
+        strongTrendThreshold = 0.25; // 1.0 is a 45-deg slope
     }
 
     public MarketStructureClassifier(double strongTrendThreshold) {
@@ -33,25 +39,55 @@ public class MarketStructureClassifier {
 
     public TrendClassification classifyMarketStructure(List<PriceBar> bars) {
         this.bars = bars;
-        this.highPivotDiff = 0;
-        this.lowPivotDiff = 0;
-        this.highPivots = Pivots.get(bars, (a, b) -> a.getHigh() >= b.getHigh(), (a, b) -> a.getHigh() - b.getHigh());
-        this.lowPivots = Pivots.get(bars, (a, b) -> a.getLow() <= b.getLow(), (a, b) -> b.getLow() - a.getLow());
+
+        highPivotDiff = 0;
+        lowPivotDiff = 0;
+        highPivots = Pivots.get(bars, (a, b) -> a.getHigh() >= b.getHigh(), (a, b) -> a.getHigh() - b.getHigh());
+        lowPivots = Pivots.get(bars, (a, b) -> a.getLow() <= b.getLow(), (a, b) -> b.getLow() - a.getLow());
 
         if (highPivots.size() <= 1 || lowPivots.size() <= 1) {
             return TrendClassification.Mixed;
         }
 
-        highPivotDiff = bars.get(highPivots.getLast()).getHigh() - bars.get(highPivots.getFirst()).getHigh();
-        lowPivotDiff = bars.get(lowPivots.getLast()).getLow() - bars.get(lowPivots.getFirst()).getLow();
+        double highestHigh = bars.getFirst().getHigh();
+        double lowestHigh = bars.getFirst().getHigh();
+        double highestLow = bars.getFirst().getLow();
+        double lowestLow = bars.getFirst().getLow();
 
-        if (highPivotDiff >= strongTrendThreshold && lowPivotDiff >= strongTrendThreshold) {
+        for (PriceBar b : bars) {
+            highestHigh = Math.max(b.getHigh(), highestHigh);
+            lowestHigh = Math.min(b.getHigh(), lowestHigh);
+            highestLow = Math.max(b.getLow(), highestLow);
+            lowestLow = Math.min(b.getLow(), lowestLow);
+        }
+
+        double highScaleDenom = highestHigh - lowestHigh;
+        double lowScaleDenom = highestLow - lowestLow;
+
+        double firstHighPivotNum = bars.get(highPivots.getFirst()).getHigh() - lowestHigh;
+        double lastHighPivotNum = bars.get(highPivots.getLast()).getHigh() - lowestHigh;
+        double firstLowPivotNum = bars.get(lowPivots.getFirst()).getLow() - lowestLow;
+        double lastLowPivotNum = bars.get(lowPivots.getLast()).getLow() - lowestLow;
+
+        highPivotDiff = lastHighPivotNum - firstHighPivotNum;
+        lowPivotDiff = lastLowPivotNum - firstLowPivotNum;
+
+        double highPivotDiffScaled = highPivotDiff / highScaleDenom;
+        double lowPivotDiffScaled = lowPivotDiff / lowScaleDenom;
+
+        double highTimeScaled = (highPivots.getLast() - highPivots.getFirst()) / ((double)bars.size() - 1);
+        double lowTimeScaled = (lowPivots.getLast() - lowPivots.getFirst()) / ((double)bars.size() - 1);
+
+        highPivotSlope = highPivotDiffScaled / highTimeScaled;
+        lowPivotSlope = lowPivotDiffScaled / lowTimeScaled;
+
+        if (highPivotSlope >= strongTrendThreshold && lowPivotSlope >= strongTrendThreshold) {
             this.trendClassification = TrendClassification.StrongUp;
-        } else if (highPivotDiff > 0.0 && lowPivotDiff > 0.0) {
+        } else if (highPivotSlope > 0.0 && lowPivotSlope > 0.0) {
             this.trendClassification = TrendClassification.WeakUp;
-        } else if (highPivotDiff <= -strongTrendThreshold && lowPivotDiff <= -strongTrendThreshold) {
+        } else if (highPivotSlope <= -strongTrendThreshold && lowPivotSlope <= -strongTrendThreshold) {
             this.trendClassification = TrendClassification.StrongDown;
-        } else if (highPivotDiff < 0.0 && lowPivotDiff < 0.0) {
+        } else if (highPivotSlope < 0.0 && lowPivotSlope < 0.0) {
             this.trendClassification = TrendClassification.WeakDown;
         } else {
             this.trendClassification = TrendClassification.Mixed;
