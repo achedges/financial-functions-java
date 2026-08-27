@@ -23,7 +23,7 @@ public class Pivots {
 
             if (l == null && r == null) {
                 return pivots;
-            } else if (l != null & r != null) {
+            } else if (l != null && r != null) {
                 if (comparison.apply(c, l) && comparison.apply(c, r)) {
                     pivots.add(i);
                 }
