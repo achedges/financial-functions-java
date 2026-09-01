@@ -6,9 +6,15 @@ import lombok.Getter;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Getter
 public class MarketStructureClassifier {
+
+    public enum ThresholdQualifier {
+        Slope,
+        Magnitude
+    }
 
     private List<PriceBar> bars = null;
     private List<Integer> highPivots = null;
@@ -19,22 +25,19 @@ public class MarketStructureClassifier {
     private double highPivotDiff = 0;
 
     @Getter
-    private double highPivotSlope = 0;
-
-    @Getter
     private double lowPivotDiff = 0;
 
-    @Getter
-    private double lowPivotSlope = 0;
-
     private final double strongTrendThreshold;
+    private final ThresholdQualifier thresholdQualifier;
 
     public MarketStructureClassifier() {
         strongTrendThreshold = 0.25; // 1.0 is a 45-deg slope
+        thresholdQualifier = ThresholdQualifier.Slope;
     }
 
-    public MarketStructureClassifier(double strongTrendThreshold) {
+    public MarketStructureClassifier(double strongTrendThreshold, ThresholdQualifier qualifier) {
         this.strongTrendThreshold = strongTrendThreshold;
+        this.thresholdQualifier = qualifier;
     }
 
     public TrendClassification classifyMarketStructure(List<PriceBar> bars) {
@@ -49,45 +52,22 @@ public class MarketStructureClassifier {
             return TrendClassification.Mixed;
         }
 
-        double highestHigh = bars.getFirst().getHigh();
-        double lowestHigh = bars.getFirst().getHigh();
-        double highestLow = bars.getFirst().getLow();
-        double lowestLow = bars.getFirst().getLow();
-
-        for (PriceBar b : bars) {
-            highestHigh = Math.max(b.getHigh(), highestHigh);
-            lowestHigh = Math.min(b.getHigh(), lowestHigh);
-            highestLow = Math.max(b.getLow(), highestLow);
-            lowestLow = Math.min(b.getLow(), lowestLow);
+        if (thresholdQualifier == ThresholdQualifier.Slope) {
+            highPivotDiff = getSlope(bars, PriceBar::getHigh, highPivots);
+            lowPivotDiff = getSlope(bars, PriceBar::getLow, lowPivots);
+        } else {
+            highPivotDiff = bars.get(highPivots.getLast()).getHigh() - bars.get(highPivots.getFirst()).getHigh();
+            lowPivotDiff = bars.get(lowPivots.getLast()).getLow() - bars.get(lowPivots.getFirst()).getLow();
         }
 
-        double highScaleDenom = highestHigh - lowestHigh;
-        double lowScaleDenom = highestLow - lowestLow;
 
-        double firstHighPivotNum = bars.get(highPivots.getFirst()).getHigh() - lowestHigh;
-        double lastHighPivotNum = bars.get(highPivots.getLast()).getHigh() - lowestHigh;
-        double firstLowPivotNum = bars.get(lowPivots.getFirst()).getLow() - lowestLow;
-        double lastLowPivotNum = bars.get(lowPivots.getLast()).getLow() - lowestLow;
-
-        highPivotDiff = lastHighPivotNum - firstHighPivotNum;
-        lowPivotDiff = lastLowPivotNum - firstLowPivotNum;
-
-        double highPivotDiffScaled = highPivotDiff / highScaleDenom;
-        double lowPivotDiffScaled = lowPivotDiff / lowScaleDenom;
-
-        double highTimeScaled = (highPivots.getLast() - highPivots.getFirst()) / ((double)bars.size() - 1);
-        double lowTimeScaled = (lowPivots.getLast() - lowPivots.getFirst()) / ((double)bars.size() - 1);
-
-        highPivotSlope = highPivotDiffScaled / highTimeScaled;
-        lowPivotSlope = lowPivotDiffScaled / lowTimeScaled;
-
-        if (highPivotSlope >= strongTrendThreshold && lowPivotSlope >= strongTrendThreshold) {
+        if (highPivotDiff >= strongTrendThreshold && lowPivotDiff >= strongTrendThreshold) {
             this.trendClassification = TrendClassification.StrongUp;
-        } else if (highPivotSlope > 0.0 && lowPivotSlope > 0.0) {
+        } else if (highPivotDiff > 0.0 && lowPivotDiff > 0.0) {
             this.trendClassification = TrendClassification.WeakUp;
-        } else if (highPivotSlope <= -strongTrendThreshold && lowPivotSlope <= -strongTrendThreshold) {
+        } else if (highPivotDiff <= -strongTrendThreshold && lowPivotDiff <= -strongTrendThreshold) {
             this.trendClassification = TrendClassification.StrongDown;
-        } else if (highPivotSlope < 0.0 && lowPivotSlope < 0.0) {
+        } else if (highPivotDiff < 0.0 && lowPivotDiff < 0.0) {
             this.trendClassification = TrendClassification.WeakDown;
         } else {
             this.trendClassification = TrendClassification.Mixed;
@@ -107,6 +87,25 @@ public class MarketStructureClassifier {
         }
 
         return Optional.of(bars.get(lastPivot));
+    }
+
+    private double getSlope(List<PriceBar> bars, Function<PriceBar, Double> valueAccessor, List<Integer> pivots) {
+        double highestVal = valueAccessor.apply(bars.getFirst());
+        double lowestVal = valueAccessor.apply(bars.getFirst());
+
+        for (PriceBar bar : bars) {
+            highestVal = Math.max(highestVal, valueAccessor.apply(bar));
+            lowestVal = Math.min(lowestVal, valueAccessor.apply(bar));
+        }
+
+        double valueScaleDenom = highestVal - lowestVal;
+        double firstPivotNum = valueAccessor.apply(bars.get(pivots.getFirst())) - lowestVal;
+        double lastPivotNum = valueAccessor.apply(bars.get(pivots.getLast())) - lowestVal;
+        double pivotDiff = lastPivotNum - firstPivotNum;
+        double pivotDiffScaled = pivotDiff / valueScaleDenom;
+        double timeScaled = (pivots.getLast() - pivots.getFirst()) / ((double)bars.size() - 1);
+
+        return pivotDiffScaled / timeScaled;
     }
 
     public Optional<PriceBar> getLastHighPivot() {
