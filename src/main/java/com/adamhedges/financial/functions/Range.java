@@ -20,6 +20,8 @@ public class Range {
     }
 
     private void getRange() {
+        min = null;
+        max = null;
         for (PriceBar bar : bars) {
             if (min == null || bar.getLow() < min) {
                 min = bar.getLow();

@@ -4,24 +4,24 @@ import com.adamhedges.financial.core.bars.PriceBar;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 public class TestRange {
 
     @Test
     public void TestRange_MinMax() {
-        List<PriceBar> bars = Context.getPriceBarList(10);
-        Range range = new Range(10, bars);
+        int period = 4;
+        Range range = new Range(period, Context.getPriceBarList(period));
 
-        Assertions.assertEquals(311.26, range.getRangeMax().orElse(0.0), 0.001);
+        Assertions.assertEquals(305.12, range.getRangeMax().orElse(0.0), 0.001);
         Assertions.assertEquals(302.09, range.getRangeMin().orElse(0.0), 0.001);
 
-        for (int i = 10; i < Context.data.length; i++) {
-            range.slide(new PriceBar("TEST", Context.data[i]));
-        }
+        double[] expectedMax = {306.17, 309.01, 310.24, 311.26, 311.26, 311.26, 311.26, 310.35, 307.40, 307.40, 307.40, 307.40};
+        double[] expectedMin = {302.09, 302.09, 302.09, 306.17, 309.01, 303.26, 300.42, 300.42, 300.42, 300.42, 303.50, 300.80};
 
-        Assertions.assertEquals(311.26, range.getRangeMax().orElse(0.0), 0.001);
-        Assertions.assertEquals(300.42, range.getRangeMin().orElse(0.0), 0.001);
+        for (int i = 0; i < Context.data.length - period; i++) {
+            range.slide(new PriceBar("TEST", Context.data[i+period]));
+            Assertions.assertEquals(expectedMax[i], range.getRangeMax().orElse(0.0), 0.001);
+            Assertions.assertEquals(expectedMin[i], range.getRangeMin().orElse(0.0), 0.001);
+        }
     }
 
 }
