@@ -38,24 +38,26 @@ public class ParabolicSAR {
 
     public void slide(PriceBar newBar) {
         if (isLong) {
-            if (newBar.getLow() < low) {
-                reverse(high);
+            if (newBar.getLow() < stop) {
+                reverse(Math.max(high, newBar.getHigh()));
+                low = newBar.getLow();
             } else {
                 high = Math.max(high, newBar.getHigh()); // maintain for the next reversal
                 stop += alpha * (newBar.getHigh() - stop);
-                updateAlpha();
                 reversalSignal = false;
             }
         } else {
-            if (newBar.getHigh() > high) {
-                reverse(low);
+            if (newBar.getHigh() > stop) {
+                reverse(Math.min(low, newBar.getLow()));
+                high = newBar.getHigh();
             } else {
                 low = Math.min(low, newBar.getLow()); // maintain for the next reversal
                 stop -= alpha * (stop - newBar.getLow());
-                updateAlpha();
                 reversalSignal = false;
             }
         }
+
+        updateAlpha();
     }
 
 }

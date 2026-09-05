@@ -99,7 +99,7 @@ public class TestParabolicSAR {
             {50, 49}
         };
 
-        double[] expectedSar = {50.0, 50.06, 50.19, 53.5, 53.5, 53.41};
+        double[] expectedSar = {50.0, 50.06, 50.19, 53.50, 53.42, 53.24};
 
         ParabolicSAR psar = new ParabolicSAR(getBar(50, 51));
         Assertions.assertEquals(50.0, psar.getStop());
