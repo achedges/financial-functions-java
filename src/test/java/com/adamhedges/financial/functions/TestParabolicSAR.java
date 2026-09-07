@@ -125,11 +125,12 @@ public class TestParabolicSAR {
     @Test
     public void TestParabolicSAR_market_data() {
         // EUR_USD, H1, 20260902 @ 1200 UTC -> 20260903 @ 2200 UTC
-        PriceBar initBar = new PriceBar("EUR_USD", 20260902, 1000);
-        initBar.setOpen(1.15717);
-        initBar.setHigh(1.15728);
-        initBar.setLow(1.15670);
-        initBar.setClose(1.15725);
+
+        PriceBar initBar = new PriceBar("EUR_USD", 20260902, 700);
+        initBar.setOpen(1.15679);
+        initBar.setHigh(1.15790);
+        initBar.setLow(1.15665);
+        initBar.setClose(1.15779);
 
         double[][] priceData = {
             {1.157740,1.158570,1.157580,1.157840},
@@ -179,41 +180,10 @@ public class TestParabolicSAR {
         }
 
         double[] expectedStops = {
-            1.15665,
-            1.15699,
-            1.15686,
-            1.15702,
-            1.15718,
-            1.15733,
-            1.15747,
-            1.15761,
-            1.15775,
-            1.15787,
-            1.15800,
-            1.15811,
-            1.15823,
-            1.15834,
-            1.15835,
-            1.15845,
-            1.15852,
-            1.15862,
-            1.15871,
-            1.15880,
-            1.15896,
-            1.15911,
-            1.15925,
-            1.15939,
-            1.15951,
-            1.15979,
-            1.16005,
-            1.16029,
-            1.16051,
-            1.16087,
-            1.16120,
-            1.16149,
-            1.16176,
-            1.16199,
-            1.16221
+            1.15665, 1.15674, 1.15686, 1.15702, 1.15718, 1.15733, 1.15747, 1.15761, 1.15775, 1.15787,
+            1.15800, 1.15811, 1.15823, 1.15834, 1.15847, 1.15857, 1.15866, 1.15875, 1.15884, 1.15895,
+            1.15910, 1.15924, 1.15937, 1.15950, 1.15971, 1.15998, 1.16022, 1.16044, 1.16074, 1.16108,
+            1.16139, 1.16166, 1.16190, 1.16213, 1.16233
         };
 
         ParabolicSAR psar = new ParabolicSAR(initBar);
@@ -221,8 +191,7 @@ public class TestParabolicSAR {
 
         for (int i = 0; i < bars.size(); i++) {
             psar.slide(bars.get(i));
-//            Assertions.assertEquals(expectedStops[i], psar.getStop().doubleValue(), 0.0001);
-            System.out.printf("Expected %.5f / Actual %.5f (alpha=%.2f)%n", expectedStops[i], psar.getStop().doubleValue(), psar.getAlpha());
+            Assertions.assertEquals(expectedStops[i], psar.getStop().doubleValue(), 0.0001);
         }
     }
 
