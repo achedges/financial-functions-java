@@ -25,11 +25,11 @@ public class TestMarketStructureClassifier {
     public void TestMarketStructureClassifier_init() {
         MarketStructureClassifier classifier = new MarketStructureClassifier();
         Assertions.assertEquals(0.25, classifier.getStrongTrendThreshold());
-        Assertions.assertEquals(MarketStructureClassifier.ThresholdQualifier.Slope, classifier.getThresholdQualifier());
+        Assertions.assertEquals(ThresholdQualifier.SlopeDouble, classifier.getThresholdQualifier());
 
-        MarketStructureClassifier classifier2 = new MarketStructureClassifier(0.002, MarketStructureClassifier.ThresholdQualifier.Magnitude);
+        MarketStructureClassifier classifier2 = new MarketStructureClassifier(0.002, ThresholdQualifier.MagnitudeDouble);
         Assertions.assertEquals(0.002, classifier2.getStrongTrendThreshold());
-        Assertions.assertEquals(MarketStructureClassifier.ThresholdQualifier.Magnitude, classifier2.getThresholdQualifier());
+        Assertions.assertEquals(ThresholdQualifier.MagnitudeDouble, classifier2.getThresholdQualifier());
     }
 
     @Test
@@ -52,6 +52,25 @@ public class TestMarketStructureClassifier {
     }
 
     @Test
+    public void TestMarketStructureClassifier_getFirstHighLowPivot() {
+        MarketStructureClassifier classifier = new MarketStructureClassifier();
+
+        Assertions.assertTrue(classifier.getFirstHighPivot().isEmpty());
+        Assertions.assertTrue(classifier.getFirstLowPivot().isEmpty());
+
+        List<PriceBar> bars = getBars();
+        // generate an ambiguous structure
+        bars.get(4).setHigh(24.0);
+        bars.get(14).setHigh(22.0);
+        bars.get(8).setLow(16.0);
+        bars.get(18).setLow(18.0);
+        classifier.classifyMarketStructure(bars);
+
+        Assertions.assertEquals(24.0, classifier.getFirstHighPivot().orElse(new PriceBar("")).getHigh(), 0.01);
+        Assertions.assertEquals(16.0, classifier.getFirstLowPivot().orElse(new PriceBar("")).getLow());
+    }
+
+    @Test
     public void TestMarketStructureClassifier_getLastHighLowPivotIndex() {
         MarketStructureClassifier classifier = new MarketStructureClassifier();
 
@@ -71,10 +90,29 @@ public class TestMarketStructureClassifier {
     }
 
     @Test
+    public void TestMarketStructureClassifier_getFirstHighLowPivotIndex() {
+        MarketStructureClassifier classifier = new MarketStructureClassifier();
+
+        Assertions.assertTrue(classifier.getFirstHighPivotIndex().isEmpty());
+        Assertions.assertTrue(classifier.getFirstLowPivotIndex().isEmpty());
+
+        List<PriceBar> bars = getBars();
+        // generate an ambiguous structure
+        bars.get(4).setHigh(24.0);
+        bars.get(14).setHigh(22.0);
+        bars.get(8).setLow(16.0);
+        bars.get(18).setLow(18.0);
+        classifier.classifyMarketStructure(bars);
+
+        Assertions.assertEquals(Optional.of(4), classifier.getFirstHighPivotIndex());
+        Assertions.assertEquals(Optional.of(8), classifier.getFirstLowPivotIndex());
+    }
+
+    @Test
     public void TestMarketStructureClassifier_Flat() {
         List<PriceBar> bars = getBars();
-        MarketStructureClassifier slopeClassifier = new MarketStructureClassifier(1.0, MarketStructureClassifier.ThresholdQualifier.Slope);
-        MarketStructureClassifier magnitudeClassifier = new MarketStructureClassifier(1.0, MarketStructureClassifier.ThresholdQualifier.Magnitude);
+        MarketStructureClassifier slopeClassifier = new MarketStructureClassifier(1.0, ThresholdQualifier.SlopeDouble);
+        MarketStructureClassifier magnitudeClassifier = new MarketStructureClassifier(1.0, ThresholdQualifier.MagnitudeDouble);
 
         // base case, not enough pivots identified
         TrendClassification trend = slopeClassifier.classifyMarketStructure(bars);
@@ -115,8 +153,8 @@ public class TestMarketStructureClassifier {
 
     @Test
     public void TestMarketStructureClassifier_WeakUp() {
-        MarketStructureClassifier slopeClassifier = new MarketStructureClassifier(1.0, MarketStructureClassifier.ThresholdQualifier.Slope);
-        MarketStructureClassifier magnitudeClassifier = new MarketStructureClassifier(1.0, MarketStructureClassifier.ThresholdQualifier.Magnitude);
+        MarketStructureClassifier slopeClassifier = new MarketStructureClassifier(1.0, ThresholdQualifier.SlopeDouble);
+        MarketStructureClassifier magnitudeClassifier = new MarketStructureClassifier(1.0, ThresholdQualifier.MagnitudeDouble);
 
         List<PriceBar> bars = getBars();
         bars.get(4).setHigh(22.0);
@@ -137,8 +175,8 @@ public class TestMarketStructureClassifier {
 
     @Test
     public void TestMarketStructureClassifier_WeakDown() {
-        MarketStructureClassifier slopeClassifier = new MarketStructureClassifier(1.0, MarketStructureClassifier.ThresholdQualifier.Slope);
-        MarketStructureClassifier magnitudeClassifier = new MarketStructureClassifier(1.0, MarketStructureClassifier.ThresholdQualifier.Magnitude);
+        MarketStructureClassifier slopeClassifier = new MarketStructureClassifier(1.0, ThresholdQualifier.SlopeDouble);
+        MarketStructureClassifier magnitudeClassifier = new MarketStructureClassifier(1.0, ThresholdQualifier.MagnitudeDouble);
 
         List<PriceBar> bars = getBars();
         bars.get(4).setHigh(22.0);
@@ -159,8 +197,8 @@ public class TestMarketStructureClassifier {
 
     @Test
     public void TestMarketStructureClassifier_StrongUp() {
-        MarketStructureClassifier slopeClassifier = new MarketStructureClassifier(0.1, MarketStructureClassifier.ThresholdQualifier.Slope);
-        MarketStructureClassifier magnitudeClassifier = new MarketStructureClassifier(0.1, MarketStructureClassifier.ThresholdQualifier.Magnitude);
+        MarketStructureClassifier slopeClassifier = new MarketStructureClassifier(0.1, ThresholdQualifier.SlopeDouble);
+        MarketStructureClassifier magnitudeClassifier = new MarketStructureClassifier(0.1, ThresholdQualifier.MagnitudeDouble);
 
         List<PriceBar> bars = getBars();
         bars.get(4).setHigh(22.0);
@@ -177,12 +215,32 @@ public class TestMarketStructureClassifier {
         Assertions.assertEquals(TrendClassification.StrongUp, trend);
         Assertions.assertEquals(1.05, magnitudeClassifier.getHighPivotDiff(), 0.01);
         Assertions.assertEquals(1.05, magnitudeClassifier.getLowPivotDiff(), 0.01);
+
+        // same test but Single requirement
+
+        slopeClassifier = new MarketStructureClassifier(0.1, ThresholdQualifier.SlopeSingle);
+        magnitudeClassifier = new MarketStructureClassifier(0.1, ThresholdQualifier.MagnitudeSingle);
+
+        bars.get(4).setHigh(22.0);
+        bars.get(14).setHigh(23.05); // just over 0.1
+        bars.get(8).setLow(18.0);
+        bars.get(18).setLow(18.0); // just under 0.1
+
+        trend = slopeClassifier.classifyMarketStructure(bars);
+        Assertions.assertEquals(TrendClassification.StrongUp, trend);
+        Assertions.assertEquals(0.65, slopeClassifier.getHighPivotDiff(), 0.01);
+        Assertions.assertEquals(0.0, slopeClassifier.getLowPivotDiff(), 0.01);
+
+        trend = magnitudeClassifier.classifyMarketStructure(bars);
+        Assertions.assertEquals(TrendClassification.StrongUp, trend);
+        Assertions.assertEquals(1.05, magnitudeClassifier.getHighPivotDiff(), 0.01);
+        Assertions.assertEquals(0.0, magnitudeClassifier.getLowPivotDiff(), 0.01);
     }
 
     @Test
     public void TestMarketStructureClassifier_StrongDown() {
-        MarketStructureClassifier slopeClassifier = new MarketStructureClassifier(0.1, MarketStructureClassifier.ThresholdQualifier.Slope);
-        MarketStructureClassifier magnitudeClassifier = new MarketStructureClassifier(0.1, MarketStructureClassifier.ThresholdQualifier.Magnitude);
+        MarketStructureClassifier slopeClassifier = new MarketStructureClassifier(0.1, ThresholdQualifier.SlopeDouble);
+        MarketStructureClassifier magnitudeClassifier = new MarketStructureClassifier(0.1, ThresholdQualifier.MagnitudeDouble);
 
         List<PriceBar> bars = getBars();
         bars.get(4).setHigh(22.0);
@@ -198,6 +256,26 @@ public class TestMarketStructureClassifier {
         trend = magnitudeClassifier.classifyMarketStructure(bars);
         Assertions.assertEquals(TrendClassification.StrongDown, trend);
         Assertions.assertEquals(-1.05, magnitudeClassifier.getHighPivotDiff(), 0.01);
+        Assertions.assertEquals(-1.05, magnitudeClassifier.getLowPivotDiff(), 0.01);
+
+        // same test but Single requirement
+
+        slopeClassifier = new MarketStructureClassifier(0.1, ThresholdQualifier.SlopeSingle);
+        magnitudeClassifier = new MarketStructureClassifier(0.1, ThresholdQualifier.MagnitudeSingle);
+
+        bars.get(4).setHigh(22.0);
+        bars.get(14).setHigh(22.0); // just under 0.1
+        bars.get(8).setLow(18.0);
+        bars.get(18).setLow(16.95); // just under 0.1
+
+        trend = slopeClassifier.classifyMarketStructure(bars);
+        Assertions.assertEquals(TrendClassification.StrongDown, trend);
+        Assertions.assertEquals(0.0, slopeClassifier.getHighPivotDiff(), 0.01);
+        Assertions.assertEquals(-0.50, slopeClassifier.getLowPivotDiff(), 0.01);
+
+        trend = magnitudeClassifier.classifyMarketStructure(bars);
+        Assertions.assertEquals(TrendClassification.StrongDown, trend);
+        Assertions.assertEquals(0.0, magnitudeClassifier.getHighPivotDiff(), 0.01);
         Assertions.assertEquals(-1.05, magnitudeClassifier.getLowPivotDiff(), 0.01);
     }
 

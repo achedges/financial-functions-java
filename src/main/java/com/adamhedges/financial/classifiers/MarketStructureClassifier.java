@@ -11,11 +11,6 @@ import java.util.function.Function;
 @Getter
 public class MarketStructureClassifier {
 
-    public enum ThresholdQualifier {
-        Slope,
-        Magnitude
-    }
-
     private List<PriceBar> bars = null;
     private List<Integer> highPivots = null;
     private List<Integer> lowPivots = null;
@@ -32,7 +27,7 @@ public class MarketStructureClassifier {
 
     public MarketStructureClassifier() {
         strongTrendThreshold = 0.25; // 1.0 is a 45-deg slope
-        thresholdQualifier = ThresholdQualifier.Slope;
+        thresholdQualifier = ThresholdQualifier.SlopeDouble;
     }
 
     public MarketStructureClassifier(double strongTrendThreshold, ThresholdQualifier qualifier) {
@@ -52,20 +47,31 @@ public class MarketStructureClassifier {
             return TrendClassification.Mixed;
         }
 
-        if (thresholdQualifier == ThresholdQualifier.Slope) {
-            highPivotDiff = getSlope(bars, PriceBar::getHigh, highPivots);
-            lowPivotDiff = getSlope(bars, PriceBar::getLow, lowPivots);
-        } else {
-            highPivotDiff = bars.get(highPivots.getLast()).getHigh() - bars.get(highPivots.getFirst()).getHigh();
-            lowPivotDiff = bars.get(lowPivots.getLast()).getLow() - bars.get(lowPivots.getFirst()).getLow();
-        }
+        highPivotDiff = switch (thresholdQualifier) {
+            case ThresholdQualifier.SlopeSingle, ThresholdQualifier.SlopeDouble -> getSlope(bars, PriceBar::getHigh, highPivots);
+            case ThresholdQualifier.MagnitudeSingle, ThresholdQualifier.MagnitudeDouble -> bars.get(highPivots.getLast()).getHigh() - bars.get(highPivots.getFirst()).getHigh();
+        };
 
+        lowPivotDiff = switch (thresholdQualifier) {
+            case ThresholdQualifier.SlopeSingle, ThresholdQualifier.SlopeDouble -> getSlope(bars, PriceBar::getLow, lowPivots);
+            case ThresholdQualifier.MagnitudeSingle, ThresholdQualifier.MagnitudeDouble -> bars.get(lowPivots.getLast()).getLow() - bars.get(lowPivots.getFirst()).getLow();
+        };
 
-        if (highPivotDiff >= strongTrendThreshold && lowPivotDiff >= strongTrendThreshold) {
+        boolean isStrongUp = switch (thresholdQualifier) {
+            case ThresholdQualifier.SlopeSingle, ThresholdQualifier.MagnitudeSingle -> highPivotDiff >= strongTrendThreshold;
+            case ThresholdQualifier.SlopeDouble, ThresholdQualifier.MagnitudeDouble -> highPivotDiff >= strongTrendThreshold && lowPivotDiff >= strongTrendThreshold;
+        };
+
+        boolean isStrongDown = switch (thresholdQualifier) {
+            case ThresholdQualifier.SlopeSingle, ThresholdQualifier.MagnitudeSingle -> lowPivotDiff <= -strongTrendThreshold;
+            case ThresholdQualifier.SlopeDouble, ThresholdQualifier.MagnitudeDouble -> lowPivotDiff <= -strongTrendThreshold && highPivotDiff <= -strongTrendThreshold;
+        };
+
+        if (isStrongUp) {
             this.trendClassification = TrendClassification.StrongUp;
         } else if (highPivotDiff > 0.0 && lowPivotDiff > 0.0) {
             this.trendClassification = TrendClassification.WeakUp;
-        } else if (highPivotDiff <= -strongTrendThreshold && lowPivotDiff <= -strongTrendThreshold) {
+        } else if (isStrongDown) {
             this.trendClassification = TrendClassification.StrongDown;
         } else if (highPivotDiff < 0.0 && lowPivotDiff < 0.0) {
             this.trendClassification = TrendClassification.WeakDown;
@@ -87,6 +93,19 @@ public class MarketStructureClassifier {
         }
 
         return Optional.of(bars.get(lastPivot));
+    }
+
+    private Optional<PriceBar> getFirstPivot(List<Integer> pivots) {
+        if (pivots == null || pivots.isEmpty()) {
+            return Optional.empty();
+        }
+
+        int firstPivot = pivots.getFirst();
+        if (bars == null || firstPivot >= bars.size()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(bars.get(firstPivot));
     }
 
     private double getSlope(List<PriceBar> bars, Function<PriceBar, Double> valueAccessor, List<Integer> pivots) {
@@ -112,8 +131,16 @@ public class MarketStructureClassifier {
         return getLastPivot(highPivots);
     }
 
+    public Optional<PriceBar> getFirstHighPivot() {
+        return getFirstPivot(highPivots);
+    }
+
     public Optional<PriceBar> getLastLowPivot() {
         return getLastPivot(lowPivots);
+    }
+
+    public Optional<PriceBar> getFirstLowPivot() {
+        return getFirstPivot(lowPivots);
     }
 
     public Optional<Integer> getLastHighPivotIndex() {
@@ -124,12 +151,28 @@ public class MarketStructureClassifier {
         return Optional.of(highPivots.getLast());
     }
 
+    public Optional<Integer> getFirstHighPivotIndex() {
+        if (highPivots == null || highPivots.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(highPivots.getFirst());
+    }
+
     public Optional<Integer> getLastLowPivotIndex() {
         if (lowPivots == null || lowPivots.isEmpty()) {
             return Optional.empty();
         }
 
         return Optional.of(lowPivots.getLast());
+    }
+
+    public Optional<Integer> getFirstLowPivotIndex() {
+        if (lowPivots == null || lowPivots.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(lowPivots.getFirst());
     }
 
 }
