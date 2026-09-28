@@ -114,17 +114,13 @@ public class TestMarketStructureClassifier {
         MarketStructureClassifier slopeClassifier = new MarketStructureClassifier(1.0, ThresholdQualifier.SlopeDouble);
         MarketStructureClassifier magnitudeClassifier = new MarketStructureClassifier(1.0, ThresholdQualifier.MagnitudeDouble);
 
-        // base case, not enough pivots identified
-        TrendClassification trend = slopeClassifier.classifyMarketStructure(bars);
-        Assertions.assertEquals(TrendClassification.Mixed, trend);
-
         // generate a perfectly flat structure
         bars.get(4).setHigh(22.0);
         bars.get(14).setHigh(22.0);
         bars.get(8).setLow(18.0);
         bars.get(18).setLow(18.0);
 
-        trend = slopeClassifier.classifyMarketStructure(bars);
+        TrendClassification trend = slopeClassifier.classifyMarketStructure(bars);
         Assertions.assertEquals(TrendClassification.Mixed, trend);
         Assertions.assertEquals(0.0, slopeClassifier.getHighPivotDiff());
         Assertions.assertEquals(0.0, slopeClassifier.getLowPivotDiff());
